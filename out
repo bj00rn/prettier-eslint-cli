@@ -1,0 +1,13 @@
+
+> prettier-eslint-cli@0.0.0-semantically-released test C:\bjorn\repos\prettier-eslint-cli
+> nps test
+
+nps is executing `test` : node node_modules\cross-env\dist\bin\cross-env.js NODE_ENV=test jest --coverage
+-------------------------------|----------|----------|----------|----------|-------------------|
+File                           |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+-------------------------------|----------|----------|----------|----------|-------------------|
+All files                      |    73.53 |    61.22 |    78.79 |    74.07 |                   |
+ format-files.js               |    70.49 |    59.57 |    75.86 |    71.07 |... 66,270,341,347 |
+ messages.js                   |      100 |      100 |      100 |      100 |                   |
+ uncaught-exception-handler.js |      100 |      100 |      100 |      100 |                   |
+-------------------------------|----------|----------|----------|----------|-------------------|

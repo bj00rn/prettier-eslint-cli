@@ -82,6 +82,7 @@ test("list different files with the --list-different option", async () => {
 });
 
 test("accepts stdin of code", async () => {
+  
   const stdin = 'echo "console.log(   window.baz , typeof [] )  "';
   const stdout = await runPrettierESLintCLI("--stdin --parser babel", stdin);
   expect(stdout).toEqual("console.log(window.baz, typeof []);\n");
@@ -140,7 +141,7 @@ function runPrettierESLintCLI(args = "", stdin = "") {
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
-    const command = `${PRETTIER_ESLINT_PATH} ${args}`;
+    const command = `${PRETTIER_ESLINT_PATH} ${args} --logLevel DEBUG`;
     const babelCommand = `${stdin}${BABEL_BIN_PATH} -- ${command}`;
 
     // prevent chalk to output colors

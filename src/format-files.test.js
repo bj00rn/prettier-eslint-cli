@@ -134,7 +134,7 @@ test("does not log anything to the console if logLevel is silent", async () => {
   await formatFiles({
     _: globs,
     write: true,
-    logLevel: log.levels.SILENT
+    logLevel: log.levels.DEBUG
   });
   expect(fsMock.writeFile).toHaveBeenCalledTimes(4);
   expect(console.error).not.toHaveBeenCalled();

@@ -4,7 +4,6 @@ import path from "path";
 import fs from "fs";
 import glob from "glob";
 import { Observable } from "rxjs";
-import format from "prettier-eslint";
 import chalk from "chalk";
 import getStdin from "get-stdin";
 import nodeIgnore from "ignore";
@@ -12,6 +11,8 @@ import findUp from "find-up";
 import memoize from "lodash.memoize";
 import indentString from "indent-string";
 import getLogger from "loglevel-colored-level-prefix";
+import requireRelative from "require-relative";
+import { oneLine } from "common-tags";
 import ConfigFile from "eslint/lib/config/config-file";
 import Linter from "eslint/lib/linter";
 import Config from "eslint/lib/config";
@@ -90,8 +91,9 @@ function formatFilesFromArgv({
   }
 }
 
-async function formatStdin(prettierESLintOptions) {
+async function formatStdin(prettierEslintModule, prettierESLintOptions) {
   const stdinValue = (await getStdin()).trim();
+  const { format } = requireModule("prettier-eslint");
   try {
     const formatted = format({ text: stdinValue, ...prettierESLintOptions });
     process.stdout.write(formatted);
@@ -228,6 +230,11 @@ function getFilesFromGlob(
 
 function formatFile(filePath, prettierESLintOptions, cliOptions) {
   const fileInfo = { filePath };
+  const { format } = requireModule(
+    getModulePath(filePath, "prettier-eslint"),
+    "prettier-eslint"
+  );
+  logger.error(format.toString());
   let format$ = rxReadFile(filePath, "utf8").map(text => {
     fileInfo.text = text;
     fileInfo.formatted = format({ text, filePath, ...prettierESLintOptions });
@@ -327,4 +334,34 @@ function getIsIgnored(filename) {
   const instance = nodeIgnore();
   instance.add(ignoreLines);
   return instance.ignores.bind(instance);
+}
+
+function requireModule(modulePath, name) {
+  try {
+    logger.trace(`requiring "${name}" module at "${modulePath}"`);
+    return require(modulePath);
+  } catch (error) {
+    logger.error(
+      oneLine`
+      There was trouble getting "${name}".
+      Is "${modulePath}" a correct path to the "${name}" module?
+    `
+    );
+    throw error;
+  }
+}
+function getModulePath(filePath = __filename, moduleName) {
+  try {
+    return requireRelative.resolve(moduleName, filePath);
+  } catch (error) {
+    logger.debug(
+      oneLine`
+        There was a problem finding the ${moduleName}
+        module. Using prettier-eslint's version.
+      `,
+      error.message,
+      error.stack
+    );
+    return require.resolve(moduleName);
+  }
 }
